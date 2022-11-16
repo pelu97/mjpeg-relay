@@ -1,0 +1,16 @@
+version: "3.5"
+services:
+  mjpeg-relay:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+      args:
+        RELAY_PORT: "54321"
+        SOURCE_URL: "http://localhost:8081/?action=stream"
+    image: hdavid0510/mjpeg-relay
+    container_name: mjpeg-relay
+    tty: true
+    ports:
+     - "54321"
+    network_mode: "host"
+    restart: "unless-stopped"
