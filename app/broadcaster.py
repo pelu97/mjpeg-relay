@@ -48,6 +48,8 @@ class Broadcaster:
         self.connected = False
         self.broadcasting = False
 
+        self.clientEvent = threading.Event();
+
         try:
             feedLostFile = open("app/resources/feedlost.jpeg", "rb") #read-only, binary
             feedLostImage = feedLostFile.read()
@@ -181,12 +183,15 @@ class Broadcaster:
                             client.kill = True
                         return
                     
-                    if(self.getClientCount() != 0):
-                        self.broadcast(data)
-                        self.status.addToBytesIn(len(data))
-                        self.status.addToBytesOut(len(data)*self.getClientCount())
-                    else:
-                        time.sleep(0.5)
+                    if(self.getClientCount() == 0):
+                        self.clientEvent.clear()
+
+                    self.clientEvent.wait()
+
+                    self.broadcast(data)
+                    self.status.addToBytesIn(len(data))
+                    self.status.addToBytesOut(len(data)*self.getClientCount())
+
             except Exception as e:
                 logging.error(f"Lost connection to the stream source: \n")
             finally:
